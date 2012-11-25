@@ -1,0 +1,7 @@
+package wspace
+
+modules = Bounded, Interp, Parser, Lang, RawLang, CheckLang, Main
+main = Main
+opts = "--nocoverage"
+executable = wspace
+
