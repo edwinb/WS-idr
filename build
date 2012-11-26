@@ -1,0 +1,1 @@
+idris --build wspace.ipkg

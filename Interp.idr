@@ -8,21 +8,14 @@ import Bounded
 ErrMsg : Set
 ErrMsg = String
 
-checkStack : Stack k -> (k' ** Stack k')
-checkStack [] = (_ ** [])
-checkStack (x :: xs) with (checkStack xs)
-     | (_ ** xs') = (_ ** x :: xs')
-checkStack (Unchecked stk) = checkStack stk
-
-uncheckStack : Stack (i + S n) -> Stack i
-uncheckStack {i = O}   stk = Unchecked stk
-uncheckStack {i = S k} (x :: xs) = x :: uncheckStack xs
-
-doCheck : (k ** Stack k) -> (i : Nat) -> Maybe (Stack i)
-doCheck (k ** stk) i with (cmp k i)
-  doCheck (k ** stk) (k + S m) | cmpLT _ = Nothing -- too small!
-  doCheck (k ** stk) k         | cmpEQ   = Just stk  -- just right!
-  doCheck (i + S n ** stk) i   | cmpGT _ = Just (uncheckStack stk)
+doCheck : Stack k -> (i : Nat) -> Maybe (Stack i)
+doCheck [] O = Just []
+doCheck [] (S k) = Nothing
+doCheck (x :: xs) (S k) with (doCheck xs k)
+   | Nothing = Nothing
+   | Just stk = Just (x :: stk)
+doCheck (x :: xs) O = Just (Unchecked (x :: xs))
+doCheck (Unchecked stk) n = doCheck stk n
 
 drop : Stack (i + k) -> Stack k 
 drop {i = O}   stk        = stk
@@ -124,7 +117,7 @@ interpInst (MkMachine (Fl END :: prog) l s h c)
      = do putStrLn "Finished"
           return Nothing
 interpInst (MkMachine (Check x' i :: prog) l s h c) 
-    with (doCheck (checkStack s) x')
+    with (doCheck s x')
          | Just stk' = interpInst (MkMachine (i :: prog) l stk' h c)
          | Nothing   = do putStrLn ("Stack empty, need " ++ show x')
                           return Nothing
