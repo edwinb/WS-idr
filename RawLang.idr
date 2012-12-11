@@ -3,7 +3,7 @@ module RawLang
 import NatCmp
 import Bounded
 
-Label : Set
+Label : Type
 Label = String
 
 data RStackInst = RPUSH Integer

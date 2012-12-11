@@ -2,15 +2,28 @@ module Parser
 
 import RawLang
 
+{-
 mspan : (a -> Bool) -> List a -> (List a, List a)
 mspan p xs = (takeWhile p xs, dropWhile p xs)
+-}
+
+trace : String -> a -> a
+trace x val = unsafePerformIO (do putStrLn x; return val) 
+
+mspan : Show a => (a -> Bool) -> List a -> (List a, List a)
+mspan p []      = ([], [])
+mspan p (x::xs) =
+  if p x then
+    let (ys, zs) = mspan p xs in
+      (x::ys, zs)
+  else
+    ([], x::xs)
 
 parseNum : List Char -> (Integer, List Char)
-parseNum xs = case (mspan isWDigit xs) of
+parseNum xs = case (span isWDigit xs) of
                    (num, (_ :: rest)) => (process 0 1 (reverse num), rest)
                    (num, []) => (process 0 1 (reverse num), [])
   where
-    isWDigit : Char -> Bool
     isWDigit ' ' = True
     isWDigit '\t' = True
     isWDigit _ = False
@@ -22,11 +35,10 @@ parseNum xs = case (mspan isWDigit xs) of
     process acc p _ = acc
 
 parseLbl : List Char -> (String, List Char)
-parseLbl xs = case (mspan isWDigit xs) of
+parseLbl xs = case (span isWDigit xs) of
                    (arg, (_ :: rest)) => (process "" arg, rest)
                    (arg, []) => (process "" arg, [])
   where
-    isWDigit : Char -> Bool
     isWDigit ' ' = True
     isWDigit '\t' = True
     isWDigit _ = False

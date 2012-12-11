@@ -16,7 +16,38 @@ testProg = [RFl (RLABEL "Start"),
                   RFl (RLABEL "addup"),
                   RAr RADD,
                   RFl RRETURN]
-                 
+                
+{-                
+dumpI : Instr x y l -> String
+dumpI (Stk (PUSH n)) = "PUSH " ++ show n
+dumpI (Stk DUP) = "DUP"
+dumpI (Stk (COPY n)) = "COPY " ++ show n
+dumpI (Stk SWAP) = "SWAP"
+dumpI (Stk DISCARD) = "DISCARD"
+dumpI (Stk (SLIDE n)) = "SLIDE " ++ show n
+
+dumpI (Ar ADD) = "ADD"
+dumpI (Ar SUB) = "SUB"
+dumpI (Ar MUL) = "MUL"
+dumpI (Ar DIV) = "DIV"
+dumpI (Ar MOD) = "MOD"
+
+dumpI (Hp STORE) = "STORE"
+dumpI (Hp RETRIEVE) = "RETRIEVE"
+
+dumpI (Fl (LABEL x)) = "LABEL " ++ show x
+dumpI (Fl (CALL x)) = "CALL " ++ show x
+dumpI (Fl (JUMP x)) = "JUMP " ++ show x
+dumpI (Fl (JZ x)) = "JZ " ++ show x
+dumpI (Fl (JNEG x)) = "JNEG " ++ show x
+dumpI (Fl RETURN) = "RETURN"
+dumpI (Fl END) = "END"
+
+dumpI (IOi OUTPUT) = "OUTPUT"
+dumpI (IOi OUTPUTNUM) = "OUTPUTNUM"
+dumpI (IOi READCHAR) = "READCHAR"
+dumpI (IOi READNUM) = "READNUM"
+-}
 
 dumpIStk : StackInst x y l -> String
 dumpIStk (PUSH n) = "PUSH " ++ show n
@@ -64,15 +95,29 @@ dump : Prog x y l -> String
 dump [] = ""
 dump (x :: xs) = dumpI x ++ "\n" ++ dump xs
 
+tspan : List Char -> (List Char, List Char)
+tspan []      = ([], [])
+tspan (x::xs) =
+  if isDigit x then
+    let (ys, zs) = trace (show xs) (tspan xs) in
+      (x::ys, zs)
+  else
+    ([], x::xs)
+
+gcInfo : IO ()
+gcInfo = mkForeign (FFun "idris_gcInfo" [] FUnit)
+
 main : IO ()
 main = do xs <- getArgs
           case xs of
                (_ :: prog :: _) =>
+--                   print (tspan (unpack ("1234" ++ prog)))
+--                    print $ parseNum (unpack ("      \t\t          \t\t  \t\t \n fooasdklfjsahdlkfjashdflkjashfsldkjfhalksdjfh" ++ prog))
                    do src <- readFile prog
                       let raw = parse src
                       case check raw of
                            Just (_ ** m) => do -- print (dump (program m)) 
                                                loop m
+                                               gcInfo
                            Nothing => putStrLn "FAIL"
                _ => putStrLn "Usage: wspace <file>"
-

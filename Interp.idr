@@ -5,7 +5,7 @@ import RawLang
 import CheckLang
 import Bounded
 
-ErrMsg : Set
+ErrMsg : Type
 ErrMsg = String
 
 doCheck : Stack k -> (i : Nat) -> Maybe (Stack i)
@@ -28,11 +28,12 @@ getHeap n []        = 0
 
 %assert_total -- can't spot decreasing Integer
 setHeap : Integer -> Integer -> List Integer -> List Integer
-setHeap 0 val (x :: xs) = val :: xs
-setHeap n val (x :: xs) = x :: setHeap (n - 1) val xs
-setHeap 0 val [] = [val]
-setHeap n val [] = if n > 0 then 0 :: setHeap (n - 1) val [] else []
+setHeap val 0 (x :: xs) = val :: xs
+setHeap val n (x :: xs) = x :: setHeap val (n - 1) xs
+setHeap val 0 [] = [val]
+setHeap val n [] = if n > 0 then 0 :: setHeap val (n - 1) [] else []
 
+%assert_total -- coverage problem
 interpStk : StackInst stkIn stkOut l -> Stack stkIn ->
             IO (Stack stkOut)
 interpStk (PUSH n)  stk        = return (n :: stk)
@@ -43,7 +44,7 @@ interpStk SWAP      (x :: y :: stk) = return (y :: x :: stk)
 interpStk DISCARD   (x :: stk) = return stk
 interpStk (SLIDE n) (x :: stk) = return (x :: drop stk)
 
-interpArith : ArithInst stkIn stkOut l -> Stack stkIn ->
+interpArith : ArithInst stkIn stkOut l -> Stack stkIn -> 
               IO (Stack stkOut)
 interpArith ADD (x :: y :: stk) = return (y + x :: stk)
 interpArith SUB (x :: y :: stk) = return (y - x :: stk)
@@ -54,7 +55,7 @@ interpArith MOD (x :: y :: stk) = return ((y `prim__modBigInt` x) :: stk)
 interpHeap : HeapInst stkIn stkOut l -> Stack stkIn -> List Integer ->
              IO (Stack stkOut, List Integer)
 interpHeap STORE (val :: addr :: stk) hp
-    = return (stk, setHeap addr val hp)
+    = return (stk, setHeap val addr hp)
 interpHeap RETRIEVE (addr :: stk) hp
     = return (getHeap addr hp :: stk, hp)
 
@@ -103,11 +104,11 @@ interpIO OUTPUTNUM (x :: stk) hp
 interpIO READCHAR (addr :: stk) hp
      = do c <- getChar
           let x : Int = cast c
-          return (stk, setHeap addr (fromInteger x) hp)
+          return (stk, setHeap (fromInteger x) addr hp)
 interpIO READNUM (addr :: stk) hp
      = do n <- getLine
           let x : Int = cast n
-          return (stk, setHeap addr (fromInteger x) hp)
+          return (stk, setHeap (fromInteger x) addr hp)
 
 interpInst : Machine l -> IO (Maybe (Machine l))
 interpInst (MkMachine (Lang.Nil) l s h c) 
@@ -125,7 +126,7 @@ interpInst (MkMachine (Stk i :: prog) l s h c)
      = do stk' <- interpStk i s 
           return (Just (MkMachine prog l stk' h c))
 interpInst (MkMachine (Ar i :: prog) l s h c)
-     = do stk' <- interpArith i s
+     = do stk' <- interpArith i s 
           return (Just (MkMachine prog l stk' h c))
 interpInst (MkMachine (Hp i :: prog) l s h c)
      = do (stk', hp') <- interpHeap i s h

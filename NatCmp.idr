@@ -1,6 +1,6 @@
 module NatCmp
 
-data Cmp : Nat -> Nat -> Set where
+data Cmp : Nat -> Nat -> Type where
      cmpLT : (y : _) -> Cmp x (x + S y)
      cmpEQ : Cmp x x
      cmpGT : (x : _) -> Cmp (y + S x) y

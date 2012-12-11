@@ -10,7 +10,7 @@ import NatCmp
 %default total
 
 -- | Bounded natural numbers
-data Bounded : Nat -> Set where
+data Bounded : Nat -> Type where
      Bound : (k : Nat) -> Bounded (plus (S k) n)
 
 instance Show (Bounded n) where

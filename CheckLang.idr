@@ -105,12 +105,9 @@ check' : Vect Label lbls -> List RInstr -> (stkIn : Nat) ->
          Maybe (stkOut ** Prog stkIn stkOut lbls)
 check' ls []        stk = return (_ ** [])
 check' ls (i :: is) stk 
-      = do ci <- checkI ls i stk
-           case ci of
-                (stk' ** i') => 
-                    do cis <- check' ls is stk'
-                       case cis of
-                            (stk'' ** is') => return (stk'' ** i' :: is')
+      = do (stk' ** i') <- checkI ls i stk
+           (stk'' ** is') <- check' ls is stk'
+           return (stk'' ** i' :: is')
 
 findLabels : Prog x y lbls -> LabelCache lbls
 findLabels {lbls} prog = updateLabels blank prog

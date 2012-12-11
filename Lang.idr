@@ -4,7 +4,7 @@ import NatCmp
 import Bounded
 import RawLang
 
-data StackInst : Nat -> Nat -> Nat -> Set where
+data StackInst : Nat -> Nat -> Nat -> Type where
      PUSH : Integer -> StackInst x (S x) lbls
      DUP  : StackInst (S x) (S (S x)) lbls
      COPY : (x : Nat) -> StackInst (plus x (S k)) (S (plus x (S k))) lbls
@@ -12,20 +12,20 @@ data StackInst : Nat -> Nat -> Nat -> Set where
      DISCARD : StackInst (S x) x lbls
      SLIDE : (x : Nat) -> StackInst (S (plus x k)) (S k) lbls
 
-data ArithInst : Nat -> Nat -> Nat -> Set where
+data ArithInst : Nat -> Nat -> Nat -> Type where
      ADD : ArithInst (S (S x)) (S x) lbls
      SUB : ArithInst (S (S x)) (S x) lbls
      MUL : ArithInst (S (S x)) (S x) lbls
      DIV : ArithInst (S (S x)) (S x) lbls
      MOD : ArithInst (S (S x)) (S x) lbls
 
-data HeapInst : Nat -> Nat -> Nat -> Set where
+data HeapInst : Nat -> Nat -> Nat -> Type where
      STORE    : HeapInst (S (S x)) x lbls
      RETRIEVE : HeapInst (S x) (S x) lbls
 
 -- For flow control, have to assume nothing on the stack at target of
 -- a label
-data FlowInst : Nat -> Nat -> Nat -> Set where
+data FlowInst : Nat -> Nat -> Nat -> Type where
      LABEL  : Bounded lbls -> FlowInst x O lbls 
      CALL   : Bounded lbls -> FlowInst x O lbls
      JUMP   : Bounded lbls -> FlowInst x O lbls
@@ -34,13 +34,13 @@ data FlowInst : Nat -> Nat -> Nat -> Set where
      RETURN : FlowInst x O lbls
      END    : FlowInst x x lbls
 
-data IOInst : Nat -> Nat -> Nat -> Set where
+data IOInst : Nat -> Nat -> Nat -> Type where
      OUTPUT    : IOInst (S x) x lbls
      OUTPUTNUM : IOInst (S x) x lbls
      READCHAR  : IOInst (S x) x lbls
      READNUM   : IOInst (S x) x lbls
 
-data Instr : Nat -> Nat -> Nat -> Set where
+data Instr : Nat -> Nat -> Nat -> Type where
      Stk   : StackInst x y lbls -> Instr x y lbls
      Ar    : ArithInst x y lbls -> Instr x y lbls
      Hp    : HeapInst x y lbls -> Instr x y lbls
@@ -48,7 +48,7 @@ data Instr : Nat -> Nat -> Nat -> Set where
      IOi   : IOInst x y lbls -> Instr x y lbls
      Check : (x' : Nat) -> Instr x' y lbls -> Instr x y lbls
 
-data Prog : Nat -> Nat -> Nat -> Set where
+data Prog : Nat -> Nat -> Nat -> Type where
      Nil  : Prog x x lbls
      (::) : Instr x y lbls -> Prog y z lbls -> Prog x z lbls
 
@@ -63,7 +63,7 @@ data Program = MkProg (Prog O e O)
 namespace Stack
     -- | A Stack n is a stack which has at least n things in it,
     -- but may have more
-    data Stack : Nat -> Set where
+    data Stack : Nat -> Type where
          Nil   : Stack O
          (::)  : Integer -> Stack k -> Stack (S k) 
          Unchecked : Stack k -> Stack O
@@ -73,13 +73,13 @@ lookup : Bounded n -> Stack n -> Integer
 lookup (Bound O)     (x :: xs) = x
 lookup (Bound (S k)) (x :: xs) = lookup (Bound k) xs
 
-data CallStackEntry : Nat -> Set where
+data CallStackEntry : Nat -> Type where
      CSE : Prog O y lbls -> CallStackEntry lbls
 
-LabelCache : Nat -> Set
+LabelCache : Nat -> Type
 LabelCache n = Vect (out ** Prog O out n) n
 
-record Machine : Nat -> Set where
+record Machine : Nat -> Type where
      MkMachine : (program : Prog x y lbls) ->
                  (lblcache : LabelCache lbls) ->
                  (stack : Stack x) ->
