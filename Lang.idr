@@ -26,12 +26,12 @@ data HeapInst : Nat -> Nat -> Nat -> Type where
 -- For flow control, have to assume nothing on the stack at target of
 -- a label
 data FlowInst : Nat -> Nat -> Nat -> Type where
-     LABEL  : Bounded lbls -> FlowInst x O lbls 
-     CALL   : Bounded lbls -> FlowInst x O lbls
-     JUMP   : Bounded lbls -> FlowInst x O lbls
+     LABEL  : Bounded lbls -> FlowInst x Z lbls 
+     CALL   : Bounded lbls -> FlowInst x Z lbls
+     JUMP   : Bounded lbls -> FlowInst x Z lbls
      JZ     : Bounded lbls -> FlowInst (S x) x lbls
      JNEG   : Bounded lbls -> FlowInst (S x) x lbls
-     RETURN : FlowInst x O lbls
+     RETURN : FlowInst x Z lbls
      END    : FlowInst x x lbls
 
 data IOInst : Nat -> Nat -> Nat -> Type where
@@ -52,7 +52,7 @@ data Prog : Nat -> Nat -> Nat -> Type where
      Nil  : Prog x x lbls
      (::) : Instr x y lbls -> Prog y z lbls -> Prog x z lbls
 
-data Program = MkProg (Prog O e O)
+data Program = MkProg (Prog Z e Z)
 
 -- testProg : Program 
 -- testProg = MkProg [Check (S O) (Stk DUP),
@@ -64,20 +64,20 @@ namespace Stack
     -- | A Stack n is a stack which has at least n things in it,
     -- but may have more
     data Stack : Nat -> Type where
-         Nil   : Stack O
+         Nil   : Stack Z
          (::)  : Integer -> Stack k -> Stack (S k) 
-         Unchecked : Stack k -> Stack O
+         Unchecked : Stack k -> Stack Z
 
 total
 lookup : Bounded n -> Stack n -> Integer
-lookup (Bound O)     (x :: xs) = x
+lookup (Bound Z)     (x :: xs) = x
 lookup (Bound (S k)) (x :: xs) = lookup (Bound k) xs
 
 data CallStackEntry : Nat -> Type where
-     CSE : Prog O y lbls -> CallStackEntry lbls
+     CSE : Prog Z y lbls -> CallStackEntry lbls
 
 LabelCache : Nat -> Type
-LabelCache n = Vect (out ** Prog O out n) n
+LabelCache n = Vect n (out ** Prog Z out n)
 
 record Machine : Nat -> Type where
      MkMachine : (program : Prog x y lbls) ->

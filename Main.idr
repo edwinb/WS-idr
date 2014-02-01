@@ -25,6 +25,7 @@ dumpI (Stk (COPY n)) = "COPY " ++ show n
 dumpI (Stk SWAP) = "SWAP"
 dumpI (Stk DISCARD) = "DISCARD"
 dumpI (Stk (SLIDE n)) = "SLIDE " ++ show n
+dumpI = ?dumpI_rhs
 
 dumpI (Ar ADD) = "ADD"
 dumpI (Ar SUB) = "SUB"

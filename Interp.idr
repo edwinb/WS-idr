@@ -9,16 +9,16 @@ ErrMsg : Type
 ErrMsg = String
 
 doCheck : Stack k -> (i : Nat) -> Maybe (Stack i)
-doCheck [] O = Just []
+doCheck [] Z = Just []
 doCheck [] (S k) = Nothing
 doCheck (x :: xs) (S k) with (doCheck xs k)
    | Nothing = Nothing
    | Just stk = Just (x :: stk)
-doCheck (x :: xs) O = Just (Unchecked (x :: xs))
+doCheck (x :: xs) Z = Just (Unchecked (x :: xs))
 doCheck (Unchecked stk) n = doCheck stk n
 
 drop : Stack (i + k) -> Stack k 
-drop {i = O}   stk        = stk
+drop {i = Z}   stk        = stk
 drop {i = S k} (x :: stk) = drop stk
 
 getHeap : Integer -> List Integer -> Integer
@@ -49,8 +49,8 @@ interpArith : ArithInst stkIn stkOut l -> Stack stkIn ->
 interpArith ADD (x :: y :: stk) = return (y + x :: stk)
 interpArith SUB (x :: y :: stk) = return (y - x :: stk)
 interpArith MUL (x :: y :: stk) = return (y * x :: stk)
-interpArith DIV (x :: y :: stk) = return ((y `prim__divBigInt` x) :: stk)
-interpArith MOD (x :: y :: stk) = return ((y `prim__modBigInt` x) :: stk)
+interpArith DIV (x :: y :: stk) = return ((y `div` x) :: stk)
+interpArith MOD (x :: y :: stk) = return ((y `mod` x) :: stk)
 
 interpHeap : HeapInst stkIn stkOut l -> Stack stkIn -> List Integer ->
              IO (Stack stkOut, List Integer)
@@ -95,20 +95,20 @@ interpFlow END _ lblcache stk hp cs
 interpIO : IOInst stkIn stkOut l -> Stack stkIn -> List Integer ->
            IO (Stack stkOut, List Integer)
 interpIO OUTPUT (x :: stk) hp 
-     = do let c : Char = cast (prim__bigIntToInt x)
-          putStr (show c)
+     = do let c : Char = cast (prim__truncBigInt_Int x)
+          putChar c
           return (stk, hp)
 interpIO OUTPUTNUM (x :: stk) hp
-     = do putStr (show x)
+     = do print x
           return (stk, hp)
 interpIO READCHAR (addr :: stk) hp
      = do c <- getChar
           let x : Int = cast c
-          return (stk, setHeap (fromInteger x) addr hp)
+          return (stk, setHeap (cast x) addr hp)
 interpIO READNUM (addr :: stk) hp
      = do n <- getLine
           let x : Int = cast n
-          return (stk, setHeap (fromInteger x) addr hp)
+          return (stk, setHeap (cast x) addr hp)
 
 interpInst : Machine l -> IO (Maybe (Machine l))
 interpInst (MkMachine (Lang.Nil) l s h c) 

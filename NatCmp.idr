@@ -5,10 +5,10 @@ data Cmp : Nat -> Nat -> Type where
      cmpEQ : Cmp x x
      cmpGT : (x : _) -> Cmp (y + S x) y
 
-cmp : (x, y : Nat) -> Cmp x y
-cmp O O     = cmpEQ
-cmp O (S k) = cmpLT _
-cmp (S k) O = cmpGT _
+total cmp : (x, y : Nat) -> Cmp x y
+cmp Z Z     = cmpEQ
+cmp Z (S k) = cmpLT _
+cmp (S k) Z = cmpGT _
 cmp (S x) (S y) with (cmp x y)
   cmp (S x) (S (x + (S k))) | cmpLT k = cmpLT k
   cmp (S x) (S x)           | cmpEQ   = cmpEQ

@@ -53,14 +53,14 @@ parse' (' '::' '::xs) = case parseNum xs of
 parse' (' '::'\n'::' '::xs) = RStk RDUP :: parse' xs
 parse' (' '::'\t'::' '::xs) 
                       = case parseNum xs of
-                           (num, rest) => let arg : Int = prim__bigIntToInt num in
-                              RStk (RCOPY (fromInteger arg)) :: parse' rest
+                           (num, rest) => 
+                              RStk (RCOPY (fromInteger num)) :: parse' rest
 parse' (' '::'\n'::'\t'::xs) = RStk RSWAP :: parse' xs
 parse' (' '::'\n'::'\n'::xs) = RStk RDISCARD :: parse' xs
 parse' (' '::'\t'::'\n'::xs) 
                       = case parseNum xs of
-                           (num, rest) => let arg : Int = prim__bigIntToInt num in
-                              RStk (RSLIDE (fromInteger arg)) :: parse' rest
+                           (num, rest) => 
+                              RStk (RSLIDE (fromInteger num)) :: parse' rest
 
 parse' ('\t'::' '::' '::' '::xs) = RAr RADD :: parse' xs
 parse' ('\t'::' '::' '::'\t'::xs) = RAr RSUB :: parse' xs
