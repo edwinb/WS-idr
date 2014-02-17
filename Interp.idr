@@ -99,7 +99,7 @@ interpIO OUTPUT (x :: stk) hp
           putChar c
           return (stk, hp)
 interpIO OUTPUTNUM (x :: stk) hp
-     = do print x
+     = do putStr (show x)
           return (stk, hp)
 interpIO READCHAR (addr :: stk) hp
      = do c <- getChar

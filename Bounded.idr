@@ -41,7 +41,8 @@ strengthen (Bound {n = S k} x) = ?strengthenZK
 
 inBound : Nat -> (b : Nat) -> Maybe (Bounded b)
 inBound x b with (cmp x b)
-  inBound x (x + S y) | cmpLT y = Just ?inBoundZK
+  inBound x (x + S y) | cmpLT y = rewrite sym (plusSuccRightSucc x y) in
+                                  Just (Bound x)
   inBound x x         | cmpEQ   = Nothing
   inBound (y + S k) y | cmpGT k = Nothing
 
@@ -55,7 +56,8 @@ inc (Bound x) = Bound (S x)
 
 safeinc : Bounded n -> Either (Bounded (S n)) (Bounded n)
 safeinc (Bound {n = Z} x) = Left (Bound (S x))
-safeinc (Bound {n = S k} x) = ?incZK
+safeinc (Bound {n = S k} x) = rewrite sym (plusSuccRightSucc x k) in
+                              Right (Bound (S x))
 
 ---------- Proofs ----------
 
@@ -79,21 +81,6 @@ Bounded.mkBounded_lemma_1 = proof {
   trivial;
 }
 
-Bounded.incZK = proof {
-  intros;
-  refine Right;
-  rewrite plusSuccRightSucc x k;
-  exact (Bound (S x));
-}
-
-Bounded.inBoundZK = proof {
-  intros;
-  compute;
-  rewrite plusCommutative (S y) x;
-  rewrite plusCommutative x y;
-  exact (Bound x);
-}
-
 Bounded.strengthenZK = proof {
   intros;
   refine Right;
@@ -101,5 +88,6 @@ Bounded.strengthenZK = proof {
   rewrite plusCommutative x k;
   refine Bound;
   exact x;
+  exact k;
 }
 
