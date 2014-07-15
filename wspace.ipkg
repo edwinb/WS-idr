@@ -2,6 +2,6 @@ package wspace
 
 modules = Bounded, Interp, Parser, NatCmp, Lang, RawLang, CheckLang, Main
 main = Main
-opts = "--dumpdefuns wspace.dc" -- --nocoverage"
+opts = "--warnreach"
 executable = wspace
 

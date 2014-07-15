@@ -1,5 +1,6 @@
 module NatCmp
 
+{-
 data Cmp : Nat -> Nat -> Type where
      cmpLT : (y : _) -> Cmp x (x + S y)
      cmpEQ : Cmp x x
@@ -13,3 +14,4 @@ cmp (S x) (S y) with (cmp x y)
   cmp (S x) (S (x + (S k))) | cmpLT k = cmpLT k
   cmp (S x) (S x)           | cmpEQ   = cmpEQ
   cmp (S (y + (S k))) (S y) | cmpGT k = cmpGT k
+  -}
