@@ -5,7 +5,7 @@ module Bounded
 --  * increase/decrease bounds
 --  * checked addition/increment
 
-import NatCmp
+-- import NatCmp
 
 %default total
 
@@ -41,13 +41,13 @@ strengthen (Bound {n = S k} x) = ?strengthenZK
 
 inBound : Nat -> (b : Nat) -> Maybe (Bounded b)
 inBound x b with (cmp x b)
-  inBound x (x + S y) | cmpLT y = rewrite sym (plusSuccRightSucc x y) in
+  inBound x (x + S y) | CmpLT y = rewrite sym (plusSuccRightSucc x y) in
                                   Just (Bound x)
-  inBound x x         | cmpEQ   = Nothing
-  inBound (y + S k) y | cmpGT k = Nothing
+  inBound x x         | CmpEQ   = Nothing
+  inBound (y + S k) y | CmpGT k = Nothing
 
 (+) : Bounded n -> Bounded n -> Maybe (Bounded n)
-(+) a b = plusB a b refl where
+(+) a b = plusB a b Refl where
   plusB : Bounded x -> Bounded y -> (x = y) -> Maybe (Bounded x)
   plusB (Bound a) (Bound b) p = inBound (a + b) _
 

@@ -9,11 +9,11 @@ checkStk (RPUSH x) n     = (_ ** Stk (PUSH x))
 checkStk RDUP      Z     = (_ ** Check (S Z) (Stk DUP))
 checkStk RDUP      (S k) = (_ ** Stk DUP)
 checkStk {l} (RCOPY n) m with (cmp n m)
-  checkStk (RCOPY n) (n + (S k)) | cmpLT _ = (_ ** Stk (COPY n))
-  checkStk {l} (RCOPY n) n           | cmpEQ   
+  checkStk (RCOPY n) (n + (S k)) | CmpLT _ = (_ ** Stk (COPY n))
+  checkStk {l} (RCOPY n) n           | CmpEQ   
        = let val = COPY {lbls = l} {k = Z} n in
              (S (S n) ** Check (S n) (Stk ?copyStk))
-  checkStk {l} (RCOPY (m + (S k))) m | cmpGT _
+  checkStk {l} (RCOPY (m + (S k))) m | CmpGT _
        = let val = COPY {lbls = l} {k = Z} (m + (S k)) in
              (S (S (m + (S k))) ** Check (S (m + (S k))) (Stk ?copyStkGT))
 checkStk RSWAP (S (S k)) = (_ ** Stk SWAP)      
@@ -21,13 +21,13 @@ checkStk RSWAP n = (_ ** Check (S (S Z)) (Stk SWAP))
 checkStk RDISCARD (S k) = (_ ** Stk DISCARD)
 checkStk RDISCARD n = (_ ** Check (S Z) (Stk DISCARD))
 checkStk {l} (RSLIDE n) m with (cmp n m)
-  checkStk {l} (RSLIDE n) (n + (S k)) | cmpLT _ 
+  checkStk {l} (RSLIDE n) (n + (S k)) | CmpLT _ 
        = let val = SLIDE {lbls=l} {k} n in
              (S k ** Stk ?slideStkLT)
-  checkStk {l} (RSLIDE n) n | cmpEQ
+  checkStk {l} (RSLIDE n) n | CmpEQ
        = let val = SLIDE {lbls=l} {k = Z} n in
              (1 ** Check (S n) (Stk ?slideStkEQ))
-  checkStk {l} (RSLIDE (m + (S k))) m | cmpGT _
+  checkStk {l} (RSLIDE (m + (S k))) m | CmpGT _
        = let val = SLIDE {lbls=l} {k = Z} (m + (S k)) in
              (1 ** Check (S (m + (S k))) (Stk ?slideStkGT))
 

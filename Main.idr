@@ -106,7 +106,7 @@ tspan (x::xs) =
     ([], x::xs)
 
 gcInfo : IO ()
-gcInfo = mkForeign (FFun "idris_gcInfo" [] FUnit)
+gcInfo = mkForeign (FFun "idris_gcInfo" [FPtr, FInt] FUnit) prim__vm 1
 
 main : IO ()
 main = do xs <- getArgs
