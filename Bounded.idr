@@ -1,5 +1,7 @@
 module Bounded
 
+import Data.Vect
+
 -- Various operations on bounded natural numbers 
 --  * vector lookup
 --  * increase/decrease bounds

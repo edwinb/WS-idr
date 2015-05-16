@@ -1,14 +1,12 @@
 module Parser
 
 import RawLang
+import Debug.Trace
 
 {-
 mspan : (a -> Bool) -> List a -> (List a, List a)
 mspan p xs = (takeWhile p xs, dropWhile p xs)
 -}
-
-trace : String -> a -> a
-trace x val = unsafePerformIO (do putStrLn x; return val) 
 
 mspan : Show a => (a -> Bool) -> List a -> (List a, List a)
 mspan p []      = ([], [])
@@ -94,9 +92,21 @@ parse' ('\t'::'\n'::' '::'\t'::xs) = RIOi ROUTPUTNUM :: parse' xs
 parse' ('\t'::'\n'::'\t'::' '::xs) = RIOi RREADCHAR :: parse' xs
 parse' ('\t'::'\n'::'\t'::'\t'::xs) = RIOi RREADNUM :: parse' xs
 
-parse' _ = []
+parse' xs = []
+
+dumpChar : Char -> String
+dumpChar ' ' = "__ "
+dumpChar '\t' = "|| "
+dumpChar '\n' = "++ "
+dumpChar _ = "XX "
+
+dumpInput : Nat -> List Char -> String
+dumpInput Z xs = "\n" ++ dumpInput 16 xs
+dumpInput (S k) (x :: xs) = dumpChar x ++ dumpInput k xs
+dumpInput _ _ = ""
 
 parse : String -> List RInstr
 parse x = parse' (filter isSpace (unpack x))
+
 
 

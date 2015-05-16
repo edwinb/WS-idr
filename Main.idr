@@ -2,9 +2,12 @@ module Main
 
 import Parser
 import Lang
+import Bounded
+import RawLang
 import CheckLang
 import Interp
 import System
+import Debug.Trace
 
 testProg : List RInstr 
 testProg = [RFl (RLABEL "Start"), 
@@ -105,9 +108,6 @@ tspan (x::xs) =
   else
     ([], x::xs)
 
-gcInfo : IO ()
-gcInfo = mkForeign (FFun "idris_gcInfo" [FPtr, FInt] FUnit) prim__vm 1
-
 main : IO ()
 main = do xs <- getArgs
           case xs of
@@ -117,8 +117,8 @@ main = do xs <- getArgs
                    do src <- readFile prog
                       let raw = parse src
                       case check raw of
-                           Just (_ ** m) => do -- print (dump (program m)) 
+                           Just (_ ** m) => do -- putStrLn (dump (program m)) 
                                                loop m
-                                               gcInfo
+                                               -- gcInfo
                            Nothing => putStrLn "FAIL"
                _ => putStrLn "Usage: wspace <file>"

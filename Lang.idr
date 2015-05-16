@@ -79,13 +79,22 @@ data CallStackEntry : Nat -> Type where
 LabelCache : Nat -> Type
 LabelCache n = Vect n (out ** Prog Z out n)
 
-record Machine : Nat -> Type where
+data Machine : Nat -> Type where
      MkMachine : (program : Prog x y lbls) ->
                  (lblcache : LabelCache lbls) ->
                  (stack : Stack x) ->
                  (heap : List Integer) ->
                  (callstack : List (CallStackEntry lbls)) ->
                  Machine lbls
+
+getx : Machine lbls -> Nat
+getx (MkMachine {x} _ _ _ _ _) = x
+
+gety : Machine lbls -> Nat
+gety (MkMachine {y} _ _ _ _ _) = y
+
+program : (m : Machine lbls) -> Prog (getx m) (gety m) lbls
+program (MkMachine p _ _ _ _) = p
 
 -- Setters can't be generated, too much dependecy...
 

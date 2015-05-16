@@ -3,6 +3,7 @@ module CheckLang
 import Lang
 import RawLang
 import NatCmp
+import Bounded
 
 checkStk : RStackInst -> (stkIn : Nat) -> (stkOut ** Instr stkIn stkOut l)
 checkStk (RPUSH x) n     = (_ ** Stk (PUSH x))
