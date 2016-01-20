@@ -114,7 +114,9 @@ main = do xs <- getArgs
                (_ :: prog :: _) =>
 --                   print (tspan (unpack ("1234" ++ prog)))
 --                    print $ parseNum (unpack ("      \t\t          \t\t  \t\t \n fooasdklfjsahdlkfjashdflkjashfsldkjfhalksdjfh" ++ prog))
-                   do src <- readFile prog
+                   do Right src <- readFile prog
+                          | Left err => putStrLn ("Error reading " ++ prog ++
+                                                   "(" ++ show err ++ ")")
                       let raw = parse src
                       case check raw of
                            Just (_ ** m) => do -- putStrLn (dump (program m)) 

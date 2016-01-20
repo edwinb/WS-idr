@@ -1,5 +1,7 @@
 module Lang
 
+import Data.Vect
+
 import NatCmp
 import Bounded
 import RawLang

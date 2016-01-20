@@ -1,5 +1,7 @@
 module Interp
 
+import Data.Vect
+
 import Lang
 import RawLang
 import CheckLang
